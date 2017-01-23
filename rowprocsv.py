@@ -1,66 +1,71 @@
 """
-Module for reading csv files exported from Concept2 RowPro
+Module for reading and exporting csv files exported from Concept2 RowPro
 """
 
-HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
-FIELDS_SUMMARY = [
-    'date', 'total_time', 'total_distance', 'avg_pace', 'unit', 'origin', 'total_cals', 'duty_cycle', 'type', 'format',
-    'slide', 'session_id', 'rowfile_id', 'avg_hr', 'last_hr', 'offset'
-]
-
-HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
-FIELDS_SAMPLES = ['time', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
+import datetime
+import tcx
 
 
-def load(filename):
+class RowProCSV:
+
+    HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
+    FIELDS_SUMMARY = [
+        'date', 'total_time', 'total_distance', 'avg_pace', 'unit', 'origin', 'total_cals', 'duty_cycle', 'type', 'format',
+        'slide', 'session_id', 'rowfile_id', 'avg_hr', 'last_hr', 'offset'
+    ]
+
+    HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
+    FIELDS_SAMPLES = ['time', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
+
     data = {
         'samples': [],
     }
 
-    lines = []
-    try:
-        with open(filename, 'r') as fp:
-            lines = fp.read().split("\r\n")
-    except IOError as e:
-        print 'Could not read file {}: {}'.format(filename, e)
+    def __init__(self, filename):
+        lines = []
+        try:
+            with open(filename, 'r') as fp:
+                lines = fp.read().split("\r\n")
+        except IOError as e:
+            print 'Could not read file {}: {}'.format(filename, e)
 
-    summary_found = False
-    samples_found = False
-    while len(lines):
-        line = lines.pop(0)
-        print 'LINE:', line
-        if not line:
-            continue
-
-        if line.startswith(HEADER_SUMMARY):
+        summary_found = False
+        samples_found = False
+        while len(lines):
             line = lines.pop(0)
-            summary_data = line.split(',')
-            if len(summary_data) != len(FIELDS_SUMMARY):
-                print 'Warning: summary line only has {} fields, {} expected'.format(len(summary_data),
-                                                                                     len(FIELDS_SUMMARY))
-            for field in FIELDS_SUMMARY:
-                if len(summary_data):
-                    data[field] = summary_data.pop(0)
-            summary_found = True
-            continue
+            if not line:
+                continue
 
-        elif line.startswith(HEADER_SAMPLES):
-            while len(lines):
+            if line.startswith(self.HEADER_SUMMARY):
                 line = lines.pop(0)
-                sample_data = line.split(',')
+                summary_data = line.split(',')
+                if len(summary_data) != len(self.FIELDS_SUMMARY):
+                    print 'Warning: summary line only has {} fields, {} expected'.format(len(summary_data),
+                                                                                         len(self.FIELDS_SUMMARY))
+                for field in self.FIELDS_SUMMARY:
+                    if len(summary_data):
+                        self.data[field] = summary_data.pop(0)
+                summary_found = True
+                continue
 
-                sample = {}
-                for field in FIELDS_SAMPLES:
-                    sample[field] = sample_data.pop(0) if len(sample_data) else None
+            elif line.startswith(self.HEADER_SAMPLES):
+                while len(lines):
+                    line = lines.pop(0)
+                    sample_data = line.split(',')
 
-                data['samples'].append(sample)
+                    sample = {}
+                    for field in self.FIELDS_SAMPLES:
+                        sample[field] = sample_data.pop(0) if len(sample_data) else None
 
-            samples_found = True
-            break
+                    self.data['samples'].append(sample)
 
-        if not summary_found:
-            print 'Warning: summary section not found in file'
-        if not samples_found:
-            print 'Warning: samples section not found in file'
+                samples_found = True
+                break
 
-    return data
+            if not summary_found:
+                print 'Warning: summary section not found in file'
+            if not samples_found:
+                print 'Warning: samples section not found in file'
+
+    def get_data(self):
+        return self.data
