@@ -15,7 +15,7 @@ class RowProCSV:
     ]
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
-    FIELDS_SAMPLES = ['time', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
+    FIELDS_SAMPLES = ['time_ms', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
 
     data = {
         'samples': [],
@@ -45,6 +45,13 @@ class RowProCSV:
                 for field in self.FIELDS_SUMMARY:
                     if len(summary_data):
                         self.data[field] = summary_data.pop(0)
+
+                # parse the date
+                try:
+                    self.data['date'] = datetime.datetime.strptime(self.data['date'], '%d/%m/%Y %H:%M:%S')
+                except Exception as ex:
+                    print 'Error parsing date {}: {}'.format(self.data['date'], ex)
+
                 summary_found = True
                 continue
 
@@ -56,6 +63,12 @@ class RowProCSV:
                     sample = {}
                     for field in self.FIELDS_SAMPLES:
                         sample[field] = sample_data.pop(0) if len(sample_data) else None
+
+                    # convert time from milliseconds to fractional seconds
+                    try:
+                        sample['time'] = float(sample['time_ms']) / 1000.0
+                    except ValueError:
+                        print 'Error converting "{}" to float'.format(sample['time_ms'])
 
                     self.data['samples'].append(sample)
 
