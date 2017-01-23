@@ -62,10 +62,10 @@ class RowProCSV:
                 samples_found = True
                 break
 
-            if not summary_found:
-                print 'Warning: summary section not found in file'
-            if not samples_found:
-                print 'Warning: samples section not found in file'
+        if not summary_found:
+            print 'Warning: summary section not found in file'
+        if not samples_found:
+            print 'Warning: samples section not found in file'
 
     def get_data(self):
         return self.data
