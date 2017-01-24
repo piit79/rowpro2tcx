@@ -15,7 +15,17 @@ class RowProCSV:
     ]
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
-    FIELDS_SAMPLES = ['time_ms', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
+    FIELDS_SAMPLES = [
+        ('time_ms', int),
+        ('distance', float),
+        ('pace', float),
+        ('watts', float),
+        ('cals', float),
+        ('spm', int),
+        ('hr', int),
+        ('duty_cycle', float),
+        ('rowfile_id', None),
+    ]
 
     date = None
     datetime = None
@@ -76,14 +86,20 @@ class RowProCSV:
                     sample_data = line.split(',')
 
                     sample = {}
-                    for field in self.FIELDS_SAMPLES:
-                        sample[field] = sample_data.pop(0) if len(sample_data) else None
+                    for field, field_type in self.FIELDS_SAMPLES:
+                        val = sample_data.pop(0) if len(sample_data) else None
+
+                        if field_type is not None and val is not None:
+                            # convert time from milliseconds to fractional seconds
+                            try:
+                                val = field_type(val)
+                            except ValueError:
+                                print 'Error converting field {} value "{}" to {}'.format(field, val, str(field_type))
+
+                        sample[field] = val
 
                     # convert time from milliseconds to fractional seconds
-                    try:
-                        sample['time'] = float(sample['time_ms']) / 1000.0
-                    except ValueError:
-                        print 'Error converting "{}" to float'.format(sample['time_ms'])
+                    sample['time'] = sample['time_ms'] / 1000.0
 
                     self.samples.append(sample)
                     samples_found = True
