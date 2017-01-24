@@ -6,12 +6,39 @@ import datetime
 import tcx
 
 
+def str2bool(val):
+    return True if val == 'True' else False
+
+
+def str2datetime(val, format='%d/%m/%Y %H:%M:%S'):
+    dt = None
+    try:
+        dt = datetime.datetime.strptime(val, format)
+    except Exception as ex:
+        print 'Error parsing date {}: {}'.format(val, ex)
+    return dt
+
+
 class RowProCSV:
 
     HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
     FIELDS_SUMMARY = [
-        'date', 'total_time', 'total_distance', 'avg_pace', 'unit', 'origin', 'total_cals', 'duty_cycle', 'type',
-        'format', 'slide', 'session_id', 'rowfile_id', 'avg_hr', 'last_hr', 'offset'
+        ('date', None),
+        ('total_time', int),
+        ('total_distance', float),
+        ('avg_pace', float),
+        ('unit', int),
+        ('origin', int),
+        ('total_cals', float),
+        ('duty_cycle', float),
+        ('type', int),
+        ('format', None),
+        ('slide', str2bool),
+        ('session_id', float),
+        ('rowfile_id', None),
+        ('avg_hr', int),
+        ('last_hr', int),
+        ('offset', None),
     ]
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
@@ -59,20 +86,21 @@ class RowProCSV:
                 if len(summary_data) != len(self.FIELDS_SUMMARY):
                     print 'Warning: summary line only has {} fields, {} expected'.format(len(summary_data),
                                                                                          len(self.FIELDS_SUMMARY))
-                for field in self.FIELDS_SUMMARY:
-                    if len(summary_data):
-                        value = summary_data.pop(0)
-                        if hasattr(self, field) is not None:
-                            setattr(self, field, value)
+                for field, field_type in self.FIELDS_SUMMARY:
+                    val = summary_data.pop(0) if len(summary_data) else None
+
+                    if field_type is not None and val is not None:
+                        # convert time from milliseconds to fractional seconds
+                        try:
+                            val = field_type(val)
+                        except ValueError:
+                            print 'Error converting field {} value "{}" to {}'.format(field, val, str(field_type))
+
+                    if hasattr(self, field) is not None:
+                        setattr(self, field, val)
 
                 # parse the date
-                try:
-                    self.datetime = datetime.datetime.strptime(self.date, '%d/%m/%Y %H:%M:%S')
-                except Exception as ex:
-                    print 'Error parsing date {}: {}'.format(self.date, ex)
-
-                # parse the slide value
-                self.slide = True if self.slide == 'True' else False
+                self.datetime = str2datetime(self.date)
 
                 summary_found = True
                 continue
