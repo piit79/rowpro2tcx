@@ -60,10 +60,13 @@ class TCX(TCXBase):
 
     def get_xml(self):
         root = etree.Element('TrainingCenterDatabase', nsmap=self.NSMAP)
-        root.attrib['{{{}}}schemaLocation'.format(self.XSI)] = ('http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 '
-                                                                'http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd')
+        root.attrib['{{{}}}schemaLocation'.format(self.XSI)] = (
+            'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 '
+            'http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd'
+        )
         for activity in self.activities:
             root.append(activity.get_xml())
+
         return root
 
 
@@ -140,6 +143,7 @@ class Track(TCXBase):
         root = etree.Element('Track')
         for point in self.points:
             root.append(point.get_xml())
+
         return root
 
 
