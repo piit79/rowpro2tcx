@@ -161,7 +161,7 @@ class Trackpoint(TCXBase):
     speed = None
     power = None
 
-    attributes = {
+    tags = {
         'Time': {'src': 'time'},
         'DistanceMeters': {'src': 'distance'},
         'AltitudeMeters': {'src': 'altitude'},
@@ -183,8 +183,8 @@ class Trackpoint(TCXBase):
         :return: Element
         """
         root = etree.Element('Trackpoint')
-        for tag_name in self.attributes:
-            tag = self.attributes[tag_name]
+        for tag_name in self.tags:
+            tag = self.tags[tag_name]
             if getattr(self, tag['src'], None) is not None:
                 el = etree.SubElement(root, tag_name)
                 if tag.get('sub_el') is not None:
