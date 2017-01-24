@@ -159,7 +159,7 @@ class Trackpoint(TCXBase):
     cadence = None
     heart_rate = None
     speed = None
-    watts = None
+    power = None
 
     attributes = {
         'Time': {'src': 'time'},
@@ -176,7 +176,7 @@ class Trackpoint(TCXBase):
         self.cadence = kwargs.get('cadence')
         self.heart_rate = kwargs.get('heart_rate')
         self.speed = kwargs.get('speed')
-        self.watts = kwargs.get('watts')
+        self.power = kwargs.get('power')
 
     def get_xml(self):
         """
@@ -192,15 +192,17 @@ class Trackpoint(TCXBase):
                 else:
                     value_el = el
                 value_el.text = self.format_val(tag_name, getattr(self, tag['src']))
-        if self.speed is not None or self.watts is not None:
+
+        # add extensions
+        if self.speed is not None or self.power is not None:
             ext = etree.SubElement(root, 'Extensions', nsmap=self.NSMAP)
             tpx = etree.SubElement(ext, '{{{}}}TPX'.format(self.NS3))
             if self.speed is not None:
                 spd = etree.SubElement(tpx, '{{{}}}Speed'.format(self.NS3))
                 spd.text = str(self.speed)
-            if self.watts is not None:
-                spd = etree.SubElement(tpx, '{{{}}}Watts'.format(self.NS3))
-                spd.text = str(self.watts)
+            if self.power is not None:
+                pwr = etree.SubElement(tpx, '{{{}}}Watts'.format(self.NS3))
+                pwr.text = str(self.power)
 
         return root
 
