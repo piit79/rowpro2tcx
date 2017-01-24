@@ -114,6 +114,8 @@ class Lap(TCXBase):
 
     def __init__(self, **kwargs):
         self.start_time = kwargs.get('start_time')
+        if 'track' in kwargs:
+            self.add_track(kwargs['track'])
 
     def add_track(self, track):
         self.tracks.append(track)
