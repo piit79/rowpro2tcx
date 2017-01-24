@@ -10,16 +10,23 @@ class RowProCSV:
 
     HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
     FIELDS_SUMMARY = [
-        'date', 'total_time', 'total_distance', 'avg_pace', 'unit', 'origin', 'total_cals', 'duty_cycle', 'type', 'format',
-        'slide', 'session_id', 'rowfile_id', 'avg_hr', 'last_hr', 'offset'
+        'date', 'total_time', 'total_distance', 'avg_pace', 'unit', 'origin', 'total_cals', 'duty_cycle', 'type',
+        'format', 'slide', 'session_id', 'rowfile_id', 'avg_hr', 'last_hr', 'offset'
     ]
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
     FIELDS_SAMPLES = ['time_ms', 'distance', 'pace', 'watts', 'cals', 'spm', 'hr', 'duty_cycle', 'rowfile_id']
 
-    data = {
-        'samples': [],
-    }
+    date = None
+    datetime = None
+    total_time = None
+    total_distance = None
+    avg_pace = None
+    total_cals = None
+    slide = False
+    avg_hr = None
+    last_hr = None
+    samples = []
 
     def __init__(self, filename):
         lines = []
@@ -44,13 +51,18 @@ class RowProCSV:
                                                                                          len(self.FIELDS_SUMMARY))
                 for field in self.FIELDS_SUMMARY:
                     if len(summary_data):
-                        self.data[field] = summary_data.pop(0)
+                        value = summary_data.pop(0)
+                        if hasattr(self, field) is not None:
+                            setattr(self, field, value)
 
                 # parse the date
                 try:
-                    self.data['date'] = datetime.datetime.strptime(self.data['date'], '%d/%m/%Y %H:%M:%S')
+                    self.datetime = datetime.datetime.strptime(self.date, '%d/%m/%Y %H:%M:%S')
                 except Exception as ex:
-                    print 'Error parsing date {}: {}'.format(self.data['date'], ex)
+                    print 'Error parsing date {}: {}'.format(self.date, ex)
+
+                # parse the slide value
+                self.slide = True if self.slide == 'True' else False
 
                 summary_found = True
                 continue
@@ -70,7 +82,7 @@ class RowProCSV:
                     except ValueError:
                         print 'Error converting "{}" to float'.format(sample['time_ms'])
 
-                    self.data['samples'].append(sample)
+                    self.samples.append(sample)
 
                 samples_found = True
                 break
@@ -81,4 +93,14 @@ class RowProCSV:
             print 'Warning: samples section not found in file'
 
     def get_data(self):
-        return self.data
+        return {
+            'datetime': self.datetime,
+            'total_time': self.total_time,
+            'total_distance': self.total_distance,
+            'avg_pace': self.avg_pace,
+            'total_cals': self.total_cals,
+            'slide': self.slide,
+            'avg_hr': self.avg_hr,
+            'last_hr': self.last_hr,
+            'samples': self.samples,
+        }
