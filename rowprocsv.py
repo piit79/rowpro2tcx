@@ -151,3 +151,35 @@ class RowProCSV:
             'last_hr': self.last_hr,
             'samples': self.samples,
         }
+
+    def get_tcx(self, sport='Rowing'):
+        """
+        Return a TCX file constructed from the RowPro file
+        :rtype: tcx.TCX
+        """
+        track = tcx.Track()
+        for sample in self.samples:
+            tp = self.sample_to_trackpoint(self.datetime, sample)
+            track.add_point(tp)
+        lap = tcx.Lap(start_time=self.datetime, track=track)
+        act = tcx.Activity(time=self.datetime, sport=sport, lap=lap)
+        tcxf = tcx.TCX(activity=act)
+
+        return tcxf
+
+    @staticmethod
+    def sample_to_trackpoint(start_time, sample):
+        """
+        Return a TCX Trackpoint instance from a RowPro CSV sample
+        :type start_time: datetime.datetime
+        :type sample: dict
+        :rtype: Trackpoint
+        """
+        return tcx.Trackpoint(
+            time=start_time + datetime.timedelta(seconds=sample['time']),
+            distance=sample['distance'],
+            speed=sample['pace'] * 60.0,
+            cadence=sample['spm'],
+            heart_rate=sample['hr'],
+            power=sample['watts']
+        )
