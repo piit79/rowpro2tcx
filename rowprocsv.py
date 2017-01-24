@@ -69,7 +69,10 @@ class RowProCSV:
 
             elif line.startswith(self.HEADER_SAMPLES):
                 while len(lines):
-                    line = lines.pop(0)
+                    line = lines.pop(0).strip()
+                    if not line:
+                        break
+
                     sample_data = line.split(',')
 
                     sample = {}
@@ -83,8 +86,8 @@ class RowProCSV:
                         print 'Error converting "{}" to float'.format(sample['time_ms'])
 
                     self.samples.append(sample)
+                    samples_found = True
 
-                samples_found = True
                 break
 
         if not summary_found:
