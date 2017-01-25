@@ -64,8 +64,9 @@ class TCX(TCXBase):
             'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 '
             'http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd'
         )
+        activities = etree.SubElement(root, 'Activities')
         for activity in self.activities:
-            root.append(activity.get_xml())
+            activities.append(activity.get_xml())
 
         return root
 
