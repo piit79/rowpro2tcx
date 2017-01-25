@@ -124,6 +124,16 @@ class Lap(TCXBase):
     calories = None
     tracks = []
 
+    tags = {
+        'TotalTimeSeconds': {'src': 'total_time'},
+        'DistanceMeters': {'src': 'distance'},
+        'MaximumSpeed': {'src': 'max_speed'},
+        'AverageHeartRateBpm': {'src': 'avg_hr', 'sub_el': 'Value'},
+        'MaximumHeartRateBpm': {'src': 'max_hr', 'sub_el': 'Value'},
+        'Cadence': {'src': 'avg_cadence'},
+        'Calories': {'src': 'calories'},
+    }
+
     def __init__(self, **kwargs):
         self.start_time = kwargs.get('start_time')
         self.total_time = kwargs.get('total_time')
@@ -143,10 +153,42 @@ class Lap(TCXBase):
     def get_xml(self):
         root = etree.Element('Lap')
         root.attrib['StartTime'] = self.start_time.isoformat()
+        for tag_name in self.tags:
+            tag = self.tags[tag_name]
+            if getattr(self, tag['src'], None) is not None:
+                el = etree.SubElement(root, tag_name)
+                if tag.get('sub_el') is not None:
+                    value_el = etree.SubElement(el, tag.get('sub_el'))
+                else:
+                    value_el = el
+                value_el.text = self.format_val(tag_name, getattr(self, tag['src']))
+
+        # extensions
+        if self.avg_speed is not None or self.max_cadence is not None or \
+                self.avg_power is not None or self.max_power is not None:
+            ext = etree.SubElement(root, 'Extensions')
+            lx = etree.SubElement(ext, '{{{}}}LX'.format(self.NS3))
+            if self.avg_speed is not None:
+                avg_spd = etree.SubElement(lx, '{{{}}}AvgSpeed'.format(self.NS3))
+                avg_spd.text = str(self.avg_speed)
+            if self.avg_power is not None:
+                avg_pwr = etree.SubElement(lx, '{{{}}}AvgWatts'.format(self.NS3))
+                avg_pwr.text = str(self.avg_power)
+            if self.max_power is not None:
+                max_pwr = etree.SubElement(lx, '{{{}}}MaxWatts'.format(self.NS3))
+                max_pwr.text = str(self.max_power)
+            if self.max_cadence is not None:
+                max_cad = etree.SubElement(lx, '{{{}}}MaxBikeCadence'.format(self.NS3))
+                max_cad.text = str(self.max_cadence)
+
         for track in self.tracks:
             root.append(track.get_xml())
 
         return root
+
+    @staticmethod
+    def format_val(tag_name, value):
+        return str(value)
 
 
 class Track(TCXBase):
