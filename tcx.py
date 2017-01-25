@@ -22,7 +22,7 @@ class TCXBase:
         :rtype: str
         """
         el = self.get_xml()
-        return etree.tostring(el, pretty_print=pretty_print)
+        return etree.tostring(el, encoding='UTF-8', xml_declaration=True, pretty_print=pretty_print)
 
     def dump(self, filename, pretty_print=False):
         """
