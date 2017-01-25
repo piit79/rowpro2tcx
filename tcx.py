@@ -111,10 +111,29 @@ class Lap(TCXBase):
     :type tracks: list of Track
     """
     start_time = None
+    total_time = None
+    distance = None
+    avg_speed = None
+    max_speed = None
+    avg_hr = None
+    max_hr = None
+    avg_power = None
+    max_power = None
+    avg_cadence = None
+    max_cadence = None
+    calories = None
     tracks = []
 
     def __init__(self, **kwargs):
         self.start_time = kwargs.get('start_time')
+        self.total_time = kwargs.get('total_time')
+        self.distance = kwargs.get('distance')
+        self.avg_speed = kwargs.get('avg_speed')
+        self.max_speed = kwargs.get('max_speed')
+        self.avg_hr = kwargs.get('avg_hr')
+        self.max_hr = kwargs.get('max_hr')
+        self.avg_cadence = kwargs.get('avg_cadence')
+        self.calories = kwargs.get('calories')
         if 'track' in kwargs:
             self.add_track(kwargs['track'])
 
