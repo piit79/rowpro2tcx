@@ -268,7 +268,8 @@ class Trackpoint(TCXBase):
 
         return root
 
-    def format_val(self, tag_name, value):
+    @staticmethod
+    def format_val(tag_name, value):
         if tag_name == 'Time':
             return value.isoformat()
         else:
