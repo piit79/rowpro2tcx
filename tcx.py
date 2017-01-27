@@ -47,9 +47,12 @@ class TCX(TCXBase):
 
     activities = []
 
-    def __init__(self, **kwargs):
-        if 'activity' in kwargs:
-            self.add_activity(kwargs['activity'])
+    def __init__(self, activity=None):
+        """
+        :param activity: Activity
+        """
+        if activity is not None:
+            self.add_activity(activity)
 
     def add_activity(self, activity):
         """
@@ -59,6 +62,10 @@ class TCX(TCXBase):
         self.activities.append(activity)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('TrainingCenterDatabase', nsmap=self.NSMAP)
         root.attrib['{{{}}}schemaLocation'.format(self.XSI)] = (
             'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 '
@@ -77,15 +84,23 @@ class Activity(TCXBase):
     :type sport: str
     :type laps: list of Lap
     """
+    RUNNING = 'Running'
+    BIKING = 'Biking'
+    OTHER = 'Other'
     time = None
     sport = None
     laps = []
 
-    def __init__(self, **kwargs):
-        self.time = kwargs.get('time')
-        self.sport = kwargs.get('sport')
-        if 'lap' in kwargs:
-            self.add_lap(kwargs['lap'])
+    def __init__(self, time=None, sport=None, lap=None):
+        """
+        :param time: datetime.datetime
+        :param sport: str
+        :param lap: Lap
+        """
+        self.time = time
+        self.sport = sport
+        if lap is not None:
+            self.add_lap(lap)
 
     def add_lap(self, lap):
         """
@@ -95,6 +110,10 @@ class Activity(TCXBase):
         self.laps.append(lap)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('Activity')
         root.attrib['Sport'] = self.sport
         id = etree.SubElement(root, 'Id')
@@ -148,9 +167,84 @@ class Lap(TCXBase):
             self.add_track(kwargs['track'])
 
     def add_track(self, track):
+        """
+        Add a track to the lap
+        :param track: Track
+        """
         self.tracks.append(track)
 
+    def calculate_stats(self):
+        """
+        Calculate stats that were not provided by the user
+        """
+        total_time = 0
+        distance = None
+        avg_spd = None
+        max_spd = None
+        tot_hr = 0
+        num_hr = 0
+        max_hr = None
+        tot_pwr = 0
+        num_pwr = 0
+        max_pwr = 0
+        max_cad = None
+        tot_cad = 0
+        num_cad = 0
+        for track in self.tracks:
+            for tp in track.points:
+                if tp.speed is not None and tp.speed > max_spd:
+                    max_spd = tp.speed
+                if tp.heart_rate is not None:
+                    # FIXME: average heart rate calculation assumes equal intervals
+                    tot_hr += tp.heart_rate
+                    num_hr += 1
+                    if tp.heart_rate > max_hr:
+                        max_hr = tp.heart_rate
+                if tp.power is not None:
+                    # FIXME: average power calculation assumes equal intervals
+                    tot_pwr += tp.power
+                    num_pwr += 1
+                    if max_pwr is None or tp.power > max_pwr:
+                        max_pwr = tp.power
+                if tp.cadence is not None:
+                    if max_cad is None or tp.cadence > max_cad:
+                        max_cad = tp.cadence
+                    # FIXME: average cadence calculation assumes equal intervals
+                    tot_cad += tp.cadence
+                    num_cad += 1
+
+            first_tp = track.points[0]
+            last_tp = track.points[-1]
+            if last_tp.distance is not None:
+                if distance is None:
+                    distance = 0
+                distance += last_tp.distance
+            total_time += (last_tp.time - first_tp.time).total_seconds()
+
+        if total_time > 0 and distance is not None:
+            avg_spd = distance / total_time * 3.6
+        avg_hr = tot_hr / num_hr if num_hr > 0 else None
+        avg_pwr = tot_pwr / num_pwr if num_pwr > 0 else None
+        avg_cad = tot_cad / num_cad if num_cad > 0 else None
+
+        # set the computed stats if not set by the user
+        self.total_time = total_time if self.total_time is None else self.total_time
+        self.distance = distance if self.distance is None else self.distance
+        self.avg_speed = avg_spd if self.avg_speed is None else self.avg_speed
+        self.max_speed = max_spd if self.max_speed is None else self.max_speed
+        self.avg_hr = avg_hr if self.avg_hr is None else self.avg_hr
+        self.max_hr = max_hr if self.max_hr is None else self.max_hr
+        self.avg_power = avg_pwr if self.avg_power is None else self.avg_power
+        self.max_power = max_pwr if self.max_power is None else self.max_power
+        self.avg_cadence = avg_cad if self.avg_cadence is None else self.avg_cadence
+        self.max_cadence = max_cad if self.max_cadence is None else self.max_cadence
+
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        self.calculate_stats()
         root = etree.Element('Lap')
         root.attrib['StartTime'] = self.start_time.isoformat()
         for tag_name in self.tags:
@@ -201,9 +295,17 @@ class Track(TCXBase):
         pass
 
     def add_point(self, point):
+        """
+        Add a point to the track
+        :param point: Trackpoint
+        """
         self.points.append(point)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('Track')
         for point in self.points:
             root.append(point.get_xml())
@@ -242,7 +344,8 @@ class Trackpoint(TCXBase):
 
     def get_xml(self):
         """
-        :return: Element
+        Return an XML representation of the instance
+        :return: etree.Element
         """
         root = etree.Element('Trackpoint')
         for tag_name in self.tags:
