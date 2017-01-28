@@ -100,6 +100,10 @@ class RowProCSV:
                     print 'Warning: summary line only has {} fields, {} expected'.format(len(summary_data),
                                                                                          len(self.FIELDS_SUMMARY))
                 for field, field_type in self.FIELDS_SUMMARY:
+                    # skip fields we don't need
+                    if hasattr(self, field) is None:
+                        continue
+
                     val = summary_data.pop(0) if len(summary_data) else None
 
                     if field_type is not None and val is not None:
