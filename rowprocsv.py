@@ -10,6 +10,15 @@ import tcx
 local_tz = tz.tzlocal()
 
 
+def str_ms2seconds(val):
+    """
+    Convert time in milliseconds to float seconds
+    :type val: str or int
+    :rtype: float
+    """
+    return int(val)/1000.0
+
+
 def str2bool(val):
     return True if val == 'True' else False
 
@@ -28,8 +37,8 @@ class RowProCSV:
 
     HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
     FIELDS_SUMMARY = [
-        ('date', None),
-        ('total_time', int),
+        ('date', str2datetime),
+        ('total_time', str_ms2seconds),
         ('total_distance', float),
         ('avg_pace', float),
         ('unit', int),
@@ -48,7 +57,7 @@ class RowProCSV:
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
     FIELDS_SAMPLES = [
-        ('time_ms', int),
+        ('time', str_ms2seconds),
         ('distance', float),
         ('pace', float),
         ('watts', float),
@@ -60,7 +69,6 @@ class RowProCSV:
     ]
 
     date = None
-    datetime = None
     total_time = None
     total_distance = None
     avg_pace = None
@@ -95,17 +103,13 @@ class RowProCSV:
                     val = summary_data.pop(0) if len(summary_data) else None
 
                     if field_type is not None and val is not None:
-                        # convert time from milliseconds to fractional seconds
+                        # convert the field using the specified function
                         try:
                             val = field_type(val)
                         except ValueError:
                             print 'Error converting field {} value "{}" to {}'.format(field, val, str(field_type))
 
-                    if hasattr(self, field) is not None:
-                        setattr(self, field, val)
-
-                # parse the date
-                self.datetime = str2datetime(self.date)
+                    setattr(self, field, val)
 
                 summary_found = True
                 continue
@@ -131,9 +135,6 @@ class RowProCSV:
 
                         sample[field] = val
 
-                    # convert time from milliseconds to fractional seconds
-                    sample['time'] = sample['time_ms'] / 1000.0
-
                     self.samples.append(sample)
                     samples_found = True
 
@@ -146,7 +147,7 @@ class RowProCSV:
 
     def get_data(self):
         return {
-            'datetime': self.datetime,
+            'date': self.date,
             'total_time': self.total_time,
             'total_distance': self.total_distance,
             'avg_pace': self.avg_pace,
@@ -164,7 +165,7 @@ class RowProCSV:
         """
         track = tcx.Track()
         for sample in self.samples:
-            tp = self.sample_to_trackpoint(self.datetime, sample)
+            tp = self.sample_to_trackpoint(self.date, sample)
             track.add_point(tp)
         lap = tcx.Lap(start_time=self.datetime, track=track)
         act = tcx.Activity(time=self.datetime, sport=sport, lap=lap)
