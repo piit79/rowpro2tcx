@@ -47,9 +47,12 @@ class TCX(TCXBase):
 
     activities = []
 
-    def __init__(self, **kwargs):
-        if 'activity' in kwargs:
-            self.add_activity(kwargs['activity'])
+    def __init__(self, activity=None):
+        """
+        :type activity: Activity
+        """
+        if activity is not None:
+            self.add_activity(activity)
 
     def add_activity(self, activity):
         """
@@ -81,11 +84,16 @@ class Activity(TCXBase):
     sport = None
     laps = []
 
-    def __init__(self, **kwargs):
-        self.time = kwargs.get('time')
-        self.sport = kwargs.get('sport')
-        if 'lap' in kwargs:
-            self.add_lap(kwargs['lap'])
+    def __init__(self, time=None, sport=None, lap=None):
+        """
+        :param time: datetime.datetime
+        :param sport: str
+        :param lap: Lap
+        """
+        self.time = time
+        self.sport = sport
+        if lap is not None:
+            self.add_lap(lap)
 
     def add_lap(self, lap):
         """
