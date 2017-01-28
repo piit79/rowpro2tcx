@@ -3,7 +3,11 @@ Module for reading and exporting csv files exported from Concept2 RowPro
 """
 
 import datetime
+from dateutil import tz
 import tcx
+
+
+local_tz = tz.tzlocal()
 
 
 def str2bool(val):
@@ -16,6 +20,7 @@ def str2datetime(val, format='%d/%m/%Y %H:%M:%S'):
         dt = datetime.datetime.strptime(val, format)
     except Exception as ex:
         print 'Error parsing date {}: {}'.format(val, ex)
+    dt = dt.replace(tzinfo=local_tz)
     return dt
 
 
