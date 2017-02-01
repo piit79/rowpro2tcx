@@ -74,6 +74,76 @@ class TCX(TCXBase):
         return root
 
 
+class Version(TCXBase):
+    """
+    :type version: str
+    """
+    version = None
+
+    def __init__(self, version):
+        super(Version, self).__init__()
+        self.version = version
+
+    @staticmethod
+    def split_version(version):
+        """
+        Split version into parts
+        :type version: str
+        :return: list
+        """
+        version_parts = version.split('.') + ['0', '0', '0']
+        return version_parts[0:4]
+
+    def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        root = etree.Element('Version', nsmap=self.NSMAP)
+        if self.version is not None:
+            ver = self.split_version(self.version)
+            etree.SubElement(root, 'VersionMajor').text = ver[0]
+            etree.SubElement(root, 'VersionMinor').text = ver[1]
+            etree.SubElement(root, 'BuildMajor').text = ver[2]
+            etree.SubElement(root, 'BuildMinor').text = ver[3]
+
+        return root
+
+
+class Author(Version):
+    """
+    :type name: str
+    :type lang: str
+    :type part_number: str
+    """
+    name = None
+    lang = None
+    part_number = None
+
+    def __init__(self, name, version=None, lang=None, part_number=None):
+        super(Author, self).__init__(version)
+        self.name = name
+        self.lang = lang
+        self.part_number = part_number
+
+    def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        root = etree.Element('Author', nsmap=self.NSMAP)
+        root.attrib['{{{}}}type'.format(self.XSI)] = 'Application_t'
+        etree.SubElement(root, 'Name').text = self.name
+        if self.version is not None:
+            root.append(super(Author, self).get_xml())
+        if self.lang is not None:
+            etree.SubElement(root, 'LangID').text = self.lang
+        if self.part_number is not None:
+            etree.SubElement(root, 'PartNumber').text = self.part_number
+
+        return root
+
+
 class Activity(TCXBase):
     """
     :type time: datetime.datetime
