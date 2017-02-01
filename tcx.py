@@ -179,6 +179,9 @@ class Activity(TCXBase):
     :type sport: str
     :type laps: list of Lap
     """
+    RUNNING = 'Running'
+    BIKING = 'Biking'
+    OTHER = 'Other'
     time = None
     sport = None
     laps = []
