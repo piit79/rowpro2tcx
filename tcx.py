@@ -116,6 +116,17 @@ class Activity(TCXBase):
 class Lap(TCXBase):
     """
     :type start_time: datetime.datetime
+    :type total_time: int
+    :type distance: int
+    :type avg_speed: float
+    :type max_speed: float
+    :type avg_hr: int
+    :type max_hr: int
+    :type avg_power: float
+    :type max_power: float
+    :type avg_cadence: int
+    :type max_cadence: int
+    :type calories: float
     :type tracks: list of Track
     """
     start_time = None
@@ -142,18 +153,19 @@ class Lap(TCXBase):
         'Calories': {'src': 'calories'},
     }
 
-    def __init__(self, **kwargs):
-        self.start_time = kwargs.get('start_time')
-        self.total_time = kwargs.get('total_time')
-        self.distance = kwargs.get('distance')
-        self.avg_speed = kwargs.get('avg_speed')
-        self.max_speed = kwargs.get('max_speed')
-        self.avg_hr = kwargs.get('avg_hr')
-        self.max_hr = kwargs.get('max_hr')
-        self.avg_cadence = kwargs.get('avg_cadence')
-        self.calories = kwargs.get('calories')
-        if 'track' in kwargs:
-            self.add_track(kwargs['track'])
+    def __init__(self, start_time=None, total_time=None, distance=None, avg_speed=None, max_speed=None,
+                 avg_hr=None, max_hr=None, avg_cadence=None, calories=None, track=None):
+        self.start_time = start_time
+        self.total_time = total_time
+        self.distance = distance
+        self.avg_speed = avg_speed
+        self.max_speed = max_speed
+        self.avg_hr = avg_hr
+        self.max_hr = max_hr
+        self.avg_cadence = avg_cadence
+        self.calories = calories
+        if track is not None:
+            self.add_track(track)
 
     def add_track(self, track):
         self.tracks.append(track)
