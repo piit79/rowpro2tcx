@@ -44,15 +44,21 @@ class TCXBase:
 
 
 class TCX(TCXBase):
-
+    """
+    :type activities: list of Activity
+    :type author: Author
+    """
     activities = []
+    author = None
 
-    def __init__(self, activity=None):
+    def __init__(self, activity=None, author=None):
         """
         :type activity: Activity
+        :type author: Author
         """
         if activity is not None:
             self.add_activity(activity)
+        self.author = author
 
     def add_activity(self, activity):
         """
@@ -62,6 +68,10 @@ class TCX(TCXBase):
         self.activities.append(activity)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('TrainingCenterDatabase', nsmap=self.NSMAP)
         root.attrib['{{{}}}schemaLocation'.format(self.XSI)] = (
             'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 '
@@ -70,6 +80,9 @@ class TCX(TCXBase):
         activities = etree.SubElement(root, 'Activities')
         for activity in self.activities:
             activities.append(activity.get_xml())
+
+        if self.author is not None:
+            root.append(self.author.get_xml())
 
         return root
 
@@ -110,7 +123,23 @@ class Version(TCXBase):
         return root
 
 
-class Author(Version):
+class Build(Version):
+
+    def __init__(self, version):
+        super(Build, self).__init__(version)
+
+    def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        root = etree.Element('Build', nsmap=self.NSMAP)
+        root.append(super(Build, self).get_xml())
+
+        return root
+
+
+class Author(Build):
     """
     :type name: str
     :type lang: str
