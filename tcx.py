@@ -234,6 +234,12 @@ class Track(TCXBase):
 class Trackpoint(TCXBase):
     """
     :type time: datetime.datetime
+    :type distance: float
+    :type altitude: float
+    :type cadence: int
+    :type heart_rate: int
+    :type speed: float
+    :type power: int
     """
     time = None
     distance = None
@@ -251,14 +257,14 @@ class Trackpoint(TCXBase):
         'HeartRateBpm': {'src': 'heart_rate', 'sub_el': 'Value'},
     }
 
-    def __init__(self, **kwargs):
-        self.time = kwargs.get('time')
-        self.distance = kwargs.get('distance')
-        self.altitude = kwargs.get('altitude')
-        self.cadence = kwargs.get('cadence')
-        self.heart_rate = kwargs.get('heart_rate')
-        self.speed = kwargs.get('speed')
-        self.power = kwargs.get('power')
+    def __init__(self, time=None, distance=None, altitude=None, cadence=None, heart_rate=None, speed=None, power=None):
+        self.time = time
+        self.distance = distance
+        self.altitude = altitude
+        self.cadence = cadence
+        self.heart_rate = heart_rate
+        self.speed = speed
+        self.power = power
 
     def get_xml(self):
         """
