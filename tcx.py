@@ -231,7 +231,32 @@ class Track(TCXBase):
         return root
 
 
-class Trackpoint(TCXBase):
+class Position(TCXBase):
+    """
+    :type latitude: float
+    :type longitude: float
+    """
+    latitude = None
+    longitude = None
+
+    def __init__(self, latitude, longitude):
+        super(Position, self).__init__()
+        self.latitude = latitude
+        self.longitude = longitude
+
+    def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        root = etree.Element('Position')
+        etree.SubElement(root, 'LatitudeDegrees').text = self.latitude
+        etree.SubElement(root, 'LongitudeDegrees').text = self.longitude
+
+        return root
+
+
+class Trackpoint(Position):
     """
     :type time: datetime.datetime
     :type distance: float
@@ -257,7 +282,9 @@ class Trackpoint(TCXBase):
         'HeartRateBpm': {'src': 'heart_rate', 'sub_el': 'Value'},
     }
 
-    def __init__(self, time=None, distance=None, altitude=None, cadence=None, heart_rate=None, speed=None, power=None):
+    def __init__(self, time=None, distance=None, latitude=None, longitude=None, altitude=None, cadence=None,
+                 heart_rate=None, speed=None, power=None):
+        super(Trackpoint, self).__init__(latitude, longitude)
         self.time = time
         self.distance = distance
         self.altitude = altitude
@@ -268,9 +295,12 @@ class Trackpoint(TCXBase):
 
     def get_xml(self):
         """
-        :return: Element
+        Return an XML representation of the instance
+        :return: etree.Element
         """
         root = etree.Element('Trackpoint')
+        if self.latitude is not None and self.longitude is not None:
+            root.append(super(Trackpoint, self).get_xml())
         for tag_name in self.tags:
             tag = self.tags[tag_name]
             if getattr(self, tag['src'], None) is not None:
