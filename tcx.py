@@ -4,7 +4,7 @@ from lxml import etree
 class TCXBase:
 
     NS1 = 'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2'
-    NS2 = 'http://www.garmin.com/xmlschemas/UserProfile/v'
+    NS2 = 'http://www.garmin.com/xmlschemas/UserProfile/v2'
     NS3 = 'http://www.garmin.com/xmlschemas/ActivityExtension/v2'
     NS4 = 'http://www.garmin.com/xmlschemas/ProfileExtension/v1'
     NS5 = 'http://www.garmin.com/xmlschemas/ActivityGoals/v1'
