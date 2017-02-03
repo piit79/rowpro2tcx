@@ -1,7 +1,7 @@
 from lxml import etree
 
 
-class TCXBase:
+class TCXBase(object):
 
     NS1 = 'http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2'
     NS2 = 'http://www.garmin.com/xmlschemas/UserProfile/v2'
@@ -11,6 +11,9 @@ class TCXBase:
     XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
     NSMAP = {None: NS1, 'ns2': NS2, 'ns3': NS3, 'ns4': NS4, 'ns5': NS5, 'xsi': XSI}
+
+    def __init__(self):
+        pass
 
     def get_xml(self):
         pass
@@ -56,6 +59,7 @@ class TCX(TCXBase):
         :type activity: Activity
         :type author: Author
         """
+        super(TCX, self).__init__()
         if activity is not None:
             self.add_activity(activity)
         self.author = author
@@ -223,6 +227,7 @@ class Activity(TCXBase):
         :param sport: str
         :param lap: Lap
         """
+        super(Activity, self).__init__()
         self.time = time
         self.sport = sport
         if lap is not None:
@@ -295,6 +300,7 @@ class Lap(TCXBase):
 
     def __init__(self, start_time=None, total_time=None, distance=None, avg_speed=None, max_speed=None,
                  avg_hr=None, max_hr=None, avg_cadence=None, calories=None, track=None):
+        super(Lap, self).__init__()
         self.start_time = start_time
         self.total_time = total_time
         self.distance = distance
@@ -358,7 +364,7 @@ class Track(TCXBase):
     points = []
 
     def __init__(self):
-        pass
+        super(Track, self).__init__()
 
     def add_point(self, point):
         self.points.append(point)
