@@ -166,11 +166,48 @@ class Author(Build):
         return root
 
 
+class Creator(TCXBase):
+    """
+    :type name: str
+    :type unit_id: str
+    :type product_id: str
+    :type version: str
+    """
+    name = None
+    unit_id = None
+    product_id = None
+    version = None
+
+    def __init__(self, name, unit_id=None, product_id=None, version=None):
+        super(Creator, self).__init__()
+        self.name = name
+        self.unit_id = unit_id
+        self.product_id = product_id
+
+    def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
+        root = etree.Element('Creator', nsmap=self.NSMAP)
+        root.attrib['{{{}}}type'.format(self.XSI)] = 'Device_t'
+        etree.SubElement(root, 'Name').text = self.name
+        if self.unit_id is not None:
+            etree.SubElement(root, 'UnitID').text = self.unit_id
+        if self.product_id is not None:
+            etree.SubElement(root, 'ProductID').text = self.product_id
+        if self.version is not None:
+            root.append(Version(self.version).get_xml())
+
+        return root
+
+
 class Activity(TCXBase):
     """
     :type time: datetime.datetime
     :type sport: str
     :type laps: list of Lap
+    :type creator: dict
     """
     RUNNING = 'Running'
     BIKING = 'Biking'
@@ -178,8 +215,9 @@ class Activity(TCXBase):
     time = None
     sport = None
     laps = []
+    creator = None
 
-    def __init__(self, time=None, sport=None, lap=None):
+    def __init__(self, time=None, sport=None, lap=None, creator={}):
         """
         :param time: datetime.datetime
         :param sport: str
@@ -189,6 +227,7 @@ class Activity(TCXBase):
         self.sport = sport
         if lap is not None:
             self.add_lap(lap)
+        self.creator = creator
 
     def add_lap(self, lap):
         """
@@ -204,6 +243,12 @@ class Activity(TCXBase):
         id.text = self.time.isoformat()
         for lap in self.laps:
             root.append(lap.get_xml())
+
+        if 'name' in self.creator or 'version' in self.creator or 'unit_id' in self.creator or \
+                'product_id' in self.creator:
+            root.append(Creator(name=self.creator.get('name'), unit_id=self.creator.get('unit_id'),
+                                product_id=self.creator.get('product_id'),
+                                version=self.creator.get('version')).get_xml())
 
         return root
 
