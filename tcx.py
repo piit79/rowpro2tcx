@@ -261,8 +261,8 @@ class Activity(TCXBase):
 class Lap(TCXBase):
     """
     :type start_time: datetime.datetime
-    :type total_time: int
-    :type distance: int
+    :type total_time: float
+    :type distance: float
     :type avg_speed: float
     :type max_speed: float
     :type avg_hr: int
