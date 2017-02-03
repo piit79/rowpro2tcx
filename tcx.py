@@ -97,16 +97,6 @@ class Version(TCXBase):
         super(Version, self).__init__()
         self.version = version
 
-    @staticmethod
-    def split_version(version):
-        """
-        Split version into parts
-        :type version: str
-        :return: list
-        """
-        version_parts = version.split('.') + ['0', '0', '0']
-        return version_parts[0:4]
-
     def get_xml(self):
         """
         Return an XML representation of the instance
@@ -114,11 +104,14 @@ class Version(TCXBase):
         """
         root = etree.Element('Version', nsmap=self.NSMAP)
         if self.version is not None:
-            ver = self.split_version(self.version)
+            # ensure at least 2 elements in the version
+            ver = self.version.split('.') + ['0']
             etree.SubElement(root, 'VersionMajor').text = ver[0]
             etree.SubElement(root, 'VersionMinor').text = ver[1]
-            etree.SubElement(root, 'BuildMajor').text = ver[2]
-            etree.SubElement(root, 'BuildMinor').text = ver[3]
+            if len(ver) > 2:
+                etree.SubElement(root, 'BuildMajor').text = ver[2]
+            if len(ver) > 3:
+                etree.SubElement(root, 'BuildMinor').text = ver[3]
 
         return root
 
