@@ -243,6 +243,10 @@ class Activity(TCXBase):
         self.laps.append(lap)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('Activity')
         root.attrib['Sport'] = self.sport
         id = etree.SubElement(root, 'Id')
@@ -315,9 +319,17 @@ class Lap(TCXBase):
             self.add_track(track)
 
     def add_track(self, track):
+        """
+        Add a track to the lap
+        :param track: Track
+        """
         self.tracks.append(track)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('Lap')
         root.attrib['StartTime'] = self.start_time.isoformat()
         for tag_name in self.tags:
@@ -355,6 +367,12 @@ class Lap(TCXBase):
 
     @staticmethod
     def format_val(tag_name, value):
+        """
+        Format a value based on the XML tag
+        :type tag_name: str
+        :type value: str or datetime.datetime
+        :return: str
+        """
         return str(value)
 
 
@@ -368,9 +386,17 @@ class Track(TCXBase):
         super(Track, self).__init__()
 
     def add_point(self, point):
+        """
+        Add a point to the track
+        :param point: Trackpoint
+        """
         self.points.append(point)
 
     def get_xml(self):
+        """
+        Return an XML representation of the instance
+        :return: etree.Element
+        """
         root = etree.Element('Track')
         for point in self.points:
             root.append(point.get_xml())
@@ -473,6 +499,12 @@ class Trackpoint(Position):
 
     @staticmethod
     def format_val(tag_name, value):
+        """
+        Format a value based on the XML tag
+        :type tag_name: str
+        :type value: str or datetime.datetime
+        :return: str
+        """
         if tag_name == 'Time':
             return value.isoformat()
         else:
