@@ -187,6 +187,7 @@ class Creator(TCXBase):
         self.name = name
         self.unit_id = unit_id
         self.product_id = product_id
+        self.version = version
 
     def get_xml(self):
         """
