@@ -192,7 +192,7 @@ class RowProCSV:
             'samples': self.samples,
         }
 
-    def get_tcx(self, sport='Rowing'):
+    def get_tcx(self, sport=tcx.Activity.OTHER):
         """
         Return a TCX instance constructed from the RowPro file
         :type sport: str
