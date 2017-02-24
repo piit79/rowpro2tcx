@@ -219,7 +219,7 @@ class RowProCSV:
         return tcx.Trackpoint(
             time=start_time + datetime.timedelta(seconds=sample['time']),
             distance=sample['distance'],
-            speed=sample['pace'] * 60.0,
+            speed=sample['pace'] * 1000.0 / 60.0,   # kilometres per minute -> metres per second
             cadence=sample['spm'],
             heart_rate=sample['hr'],
             power=sample['watts']
