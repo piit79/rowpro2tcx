@@ -8,6 +8,7 @@ from dateutil import tz
 import tcx
 
 
+__version__ = '0.1.1'
 local_tz = tz.tzlocal()
 
 
@@ -219,7 +220,8 @@ class RowProCSV:
             lap=lap
         )
 
-        tcxf = tcx.TCX(activity=act)
+        author = tcx.Author(__name__, version=__version__)
+        tcxf = tcx.TCX(activity=act, author=author)
 
         return tcxf
 
