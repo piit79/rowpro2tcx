@@ -59,6 +59,8 @@ class RowProCSV:
     :type samples: list of dict
     """
 
+    CREATOR = 'DigitalRowing RowPro'
+
     HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
     FIELDS_SUMMARY = [
         ('date', str2datetime),
@@ -92,6 +94,7 @@ class RowProCSV:
         ('rowfile_id', None),
     ]
 
+    rowpro_version = None
     date = None
     total_time = None
     total_distance = None
@@ -102,10 +105,11 @@ class RowProCSV:
     last_hr = None
     samples = []
 
-    def __init__(self, filename):
+    def __init__(self, filename, rowpro_version=None):
         """
         :type filename: str
         """
+        self.rowpro_version = rowpro_version
         lines = []
         try:
             with open(filename, 'r') as fp:
@@ -214,10 +218,17 @@ class RowProCSV:
             track=track
         )
 
+        creator = {
+            'name': self.CREATOR,
+        }
+        if self.rowpro_version is not None:
+            creator['version'] = self.rowpro_version
+
         act = tcx.Activity(
             time=self.date,
             sport=sport,
-            lap=lap
+            lap=lap,
+            creator=creator
         )
 
         author = tcx.Author(__name__, version=__version__)
