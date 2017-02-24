@@ -299,7 +299,7 @@ class Lap(TCXBase):
         'Calories': {'src': 'calories'},
     }
 
-    def __init__(self, start_time=None, total_time=None, distance=None, avg_speed=None, max_speed=None,
+    def __init__(self, start_time, total_time=None, distance=None, avg_speed=None, max_speed=None,
                  avg_hr=None, max_hr=None, avg_cadence=None, calories=None, track=None):
         super(Lap, self).__init__()
         self.start_time = start_time
