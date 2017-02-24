@@ -202,8 +202,23 @@ class RowProCSV:
         for sample in self.samples:
             tp = self.sample_to_trackpoint(self.date, sample)
             track.add_point(tp)
-        lap = tcx.Lap(start_time=self.datetime, track=track)
-        act = tcx.Activity(time=self.datetime, sport=sport, lap=lap)
+
+        lap = tcx.Lap(
+            start_time=self.date,
+            total_time=self.total_time,
+            distance=self.total_distance,
+            avg_speed=self.avg_pace * 1000.0 / 60.0,   # kilometres per minute -> metres per second
+            calories=self.total_cals,
+            avg_hr=self.avg_hr,
+            track=track
+        )
+
+        act = tcx.Activity(
+            time=self.date,
+            sport=sport,
+            lap=lap
+        )
+
         tcxf = tcx.TCX(activity=act)
 
         return tcxf
