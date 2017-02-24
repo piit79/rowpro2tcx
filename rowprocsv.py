@@ -1,5 +1,6 @@
 """
-Module for reading and exporting csv files exported from Concept2 RowPro
+Module for reading and converting DigitalRowing RowPro csv files
+See https://www.digitalrowing.com/
 """
 
 import datetime
@@ -16,17 +17,28 @@ def str_ms2seconds(val):
     :type val: str or int
     :rtype: float
     """
-    return int(val)/1000.0
+    return int(val) / 1000.0
 
 
 def str2bool(val):
+    """
+    Return True for 'True', False otherwise
+    :type val: str
+    :rtype: bool
+    """
     return True if val == 'True' else False
 
 
-def str2datetime(val, format='%d/%m/%Y %H:%M:%S'):
+def str2datetime(val, fmt='%d/%m/%Y %H:%M:%S'):
+    """
+    Convert string date interpreted in local time zone to datetime
+    :type val: str
+    :type fmt: str
+    :rtype: datetime.datetime
+    """
     dt = None
     try:
-        dt = datetime.datetime.strptime(val, format)
+        dt = datetime.datetime.strptime(val, fmt)
     except Exception as ex:
         print 'Error parsing date {}: {}'.format(val, ex)
     dt = dt.replace(tzinfo=local_tz)
@@ -34,6 +46,17 @@ def str2datetime(val, format='%d/%m/%Y %H:%M:%S'):
 
 
 class RowProCSV:
+    """
+    :type date: datetime.datetime
+    :type total_time: float
+    :type total_distance: float
+    :type avg_pace: float
+    :type total_cals: int
+    :type slide: bool
+    :type avg_hr: int
+    :type last_hr: int
+    :type samples: list of dict
+    """
 
     HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
     FIELDS_SUMMARY = [
@@ -59,7 +82,7 @@ class RowProCSV:
     FIELDS_SAMPLES = [
         ('time', str_ms2seconds),
         ('distance', float),
-        ('pace', float),
+        ('pace', float),   # pace is in kilometres per minute
         ('watts', float),
         ('cals', float),
         ('spm', int),
@@ -79,6 +102,9 @@ class RowProCSV:
     samples = []
 
     def __init__(self, filename):
+        """
+        :type filename: str
+        """
         lines = []
         try:
             with open(filename, 'r') as fp:
@@ -150,6 +176,10 @@ class RowProCSV:
             print 'Warning: samples section not found in file'
 
     def get_data(self):
+        """
+        Return all data in a dictionary
+        :rtype: dict
+        """
         return {
             'date': self.date,
             'total_time': self.total_time,
@@ -164,7 +194,8 @@ class RowProCSV:
 
     def get_tcx(self, sport='Rowing'):
         """
-        Return a TCX file constructed from the RowPro file
+        Return a TCX instance constructed from the RowPro file
+        :type sport: str
         :rtype: tcx.TCX
         """
         track = tcx.Track()
@@ -183,7 +214,7 @@ class RowProCSV:
         Return a TCX Trackpoint instance from a RowPro CSV sample
         :type start_time: datetime.datetime
         :type sample: dict
-        :rtype: Trackpoint
+        :rtype: tcx.Trackpoint
         """
         return tcx.Trackpoint(
             time=start_time + datetime.timedelta(seconds=sample['time']),
