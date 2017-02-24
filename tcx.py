@@ -325,11 +325,73 @@ class Lap(TCXBase):
         """
         self.tracks.append(track)
 
+    def calculate_stats(self):
+        """
+        Calculate stats that were not provided by the user
+        """
+        total_time = 0
+        distance = 0
+        max_spd = 0
+        max_hr = 0
+        tot_hr = 0
+        num_hr = 0
+        max_pwr = 0
+        tot_pwr = 0
+        num_pwr = 0
+        max_cad = 0
+        tot_cad = 0
+        num_cad = 0
+        for track in self.tracks:
+            for tp in track.points:
+                if tp.speed is not None and tp.speed > max_spd:
+                    max_spd = tp.speed
+                if tp.heart_rate is not None:
+                    # weighted average might be technically more correct but plain average is good enough
+                    tot_hr += tp.heart_rate
+                    num_hr += 1
+                    if tp.heart_rate > max_hr:
+                        max_hr = tp.heart_rate
+                if tp.power is not None:
+                    # weighted average might be technically more correct but plain average is good enough
+                    tot_pwr += tp.power
+                    num_pwr += 1
+                    if max_pwr is None or tp.power > max_pwr:
+                        max_pwr = tp.power
+                if tp.cadence is not None:
+                    if max_cad is None or tp.cadence > max_cad:
+                        max_cad = tp.cadence
+                    # weighted average might be technically more correct but plain average is good enough
+                    tot_cad += tp.cadence
+                    num_cad += 1
+
+            first_tp = track.points[0]
+            last_tp = track.points[-1]
+            if last_tp.distance is not None:
+                distance += last_tp.distance
+            total_time += (last_tp.time - first_tp.time).total_seconds()
+
+        # set the computed stats not provided by the user
+        self.total_time = total_time if self.total_time is None and total_time > 0 else self.total_time
+        self.distance = distance if self.distance is None and distance > 0 else self.distance
+        if self.avg_speed is None and self.distance is not None and self.total_time is not None and self.total_time > 0:
+            self.avg_speed = self.distance / self.total_time
+        self.max_speed = max_spd if self.max_speed is None and max_spd > 0 else self.max_speed
+        if self.avg_hr is None and num_hr > 0:
+            self.avg_hr = tot_hr / num_hr
+        self.max_hr = max_hr if self.max_hr is None and max_hr > 0 else self.max_hr
+        if self.avg_power is None and num_pwr > 0:
+            self.avg_power = tot_pwr / num_pwr
+        self.max_power = max_pwr if self.max_power is None and max_pwr > 0 else self.max_power
+        if self.avg_cadence is None and num_cad > 0:
+            self.avg_cadence = tot_cad / num_cad
+        self.max_cadence = max_cad if self.max_cadence is None and max_cad > 0 else self.max_cadence
+
     def get_xml(self):
         """
         Return an XML representation of the instance
         :return: etree.Element
         """
+        self.calculate_stats()
         root = etree.Element('Lap')
         root.attrib['StartTime'] = self.start_time.isoformat()
         for tag_name in self.tags:
