@@ -8,7 +8,7 @@ import dateutil.parser
 import tcx
 
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 
 def str_ms2seconds(val):
