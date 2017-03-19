@@ -43,6 +43,15 @@ def str2datetime(val):
     return dt
 
 
+def str2int(val):
+    """
+    Convert string to an int
+    :type val: str
+    :rtype: int
+    """
+    return int(float(val))
+
+
 class RowProCSV:
     """
     :type date: datetime.datetime
@@ -82,8 +91,8 @@ class RowProCSV:
         ('pace', float),   # pace is in kilometres per minute
         ('watts', float),
         ('cals', float),
-        ('spm', int),
-        ('hr', int),
+        ('spm', str2int),
+        ('hr', str2int),
         ('duty_cycle', float),
         ('rowfile_id', None),
     ]
