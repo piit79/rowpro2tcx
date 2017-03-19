@@ -26,7 +26,7 @@ def str2bool(val):
     :type val: str
     :rtype: bool
     """
-    return True if val == 'True' else False
+    return val.lower() == 'true'
 
 
 def str2datetime(val):
