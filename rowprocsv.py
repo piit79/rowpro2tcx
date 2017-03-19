@@ -4,12 +4,11 @@ See https://www.digitalrowing.com/
 """
 
 import datetime
-from dateutil import tz
+import dateutil.parser
 import tcx
 
 
 __version__ = '0.1.1'
-local_tz = tz.tzlocal()
 
 
 def str_ms2seconds(val):
@@ -30,19 +29,17 @@ def str2bool(val):
     return True if val == 'True' else False
 
 
-def str2datetime(val, fmt='%d/%m/%Y %H:%M:%S'):
+def str2datetime(val):
     """
-    Convert string date interpreted in local time zone to datetime
+    Convert ISO 8601 date to datetime
     :type val: str
-    :type fmt: str
     :rtype: datetime.datetime
     """
     dt = None
     try:
-        dt = datetime.datetime.strptime(val, fmt)
+        dt = dateutil.parser.parse(val)
     except Exception as ex:
         print 'Error parsing date {}: {}'.format(val, ex)
-    dt = dt.replace(tzinfo=local_tz)
     return dt
 
 
