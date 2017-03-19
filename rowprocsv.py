@@ -66,12 +66,13 @@ class RowProCSV:
 
     CREATOR = 'DigitalRowing RowPro'
 
-    HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,'
+    HEADER_SUMMARY = 'Date,TotalTime,TotalDistance,AvgPace,Unit,Origin,TotalCals,DutyCycle,Type,Format,Slide,AvgHR,'
     FIELDS_SUMMARY = [
         ('date', str2datetime),
         ('total_time', str_ms2seconds),
         ('total_distance', float),
         ('avg_pace', float),
+        ('avg_pwr', float),
         ('unit', int),
         ('origin', int),
         ('total_cals', float),
@@ -79,8 +80,7 @@ class RowProCSV:
         ('type', int),
         ('format', None),
         ('slide', str2bool),
-        ('session_id', float),
-        ('rowfile_id', None),
+        ('unknown1', None),
         ('avg_hr', int),
     ]
 
