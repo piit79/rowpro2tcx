@@ -55,7 +55,6 @@ class RowProCSV:
     :type total_cals: int
     :type slide: bool
     :type avg_hr: int
-    :type last_hr: int
     :type samples: list of dict
     """
 
@@ -77,8 +76,6 @@ class RowProCSV:
         ('session_id', float),
         ('rowfile_id', None),
         ('avg_hr', int),
-        ('last_hr', int),
-        ('offset', None),
     ]
 
     HEADER_SAMPLES = 'Time,Distance,Pace,Watts,Cals,SPM,HR,DutyCycle,Rowfile_Id'
@@ -102,7 +99,6 @@ class RowProCSV:
     total_cals = None
     slide = False
     avg_hr = None
-    last_hr = None
     samples = []
 
     def __init__(self, filename, rowpro_version=None):
@@ -193,7 +189,6 @@ class RowProCSV:
             'total_cals': self.total_cals,
             'slide': self.slide,
             'avg_hr': self.avg_hr,
-            'last_hr': self.last_hr,
             'samples': self.samples,
         }
 
