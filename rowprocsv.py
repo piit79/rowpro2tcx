@@ -123,7 +123,7 @@ class RowProCSV:
             if line.startswith(self.HEADER_SUMMARY):
                 line = lines.pop(0)
                 summary_data = line.split(',')
-                if len(summary_data) != len(self.FIELDS_SUMMARY):
+                if len(summary_data) < len(self.FIELDS_SUMMARY):
                     print 'Warning: summary line only has {} fields, {} expected'.format(len(summary_data),
                                                                                          len(self.FIELDS_SUMMARY))
                 for field, field_type in self.FIELDS_SUMMARY:
